@@ -1,0 +1,21 @@
+name = "OneTimePasswords"
+uuid = "cbea7a94-ea03-4af3-b52f-24efa70d1a55"
+authors = ["André Herling <andreeco@herling.pro>"]
+version = "0.0.1"
+
+[deps]
+CodecBase = "6c391c72-fb7b-5838-ba82-7cfb1bcfecbf"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+QRCoders = "f42e9828-16f3-11ed-2883-9126170b272d"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+SHA = "ea8e919c-243c-51af-8825-aaa63cd721ce"
+
+[compat]
+CodecBase = "0.3.4"
+Dates = "1.11.0"
+HTTP = "1.10.17"
+QRCoders = "1.4.5"
+Random = "1.11.0"
+SHA = "0.7.0"
+julia = "1.11"
