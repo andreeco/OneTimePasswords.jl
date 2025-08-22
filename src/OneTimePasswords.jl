@@ -21,10 +21,10 @@ julia> account = "alice@example.com";
 
 julia> issuer  = "MyApp";
 
-julia> hotp_uri = uri(HOTP(), secret, account, issuer;
+julia> urilink = uri(HOTP(), secret, account, issuer;
                digits=6, counter=0, algorithm=:SHA1);
 
-julia> svg = qrcode(hotp_uri; format=:svg, size=200, border=2);
+julia> svg = qrcode(urilink; format=:svg, size=200, border=2);
 
 julia> tmp_svg = tempname() * "hotp.svg";
 
@@ -34,7 +34,12 @@ julia> open(tmp_svg,"w") do io
 
 julia> tmp_png = tempname() * "hotp.png";
 
-julia> qrcode(hotp_uri; format="png", path=tmp_png);
+julia> pngfile = qrcode(urilink; format="png", path=tmp_png);
+
+julia> isfile(pngfile)
+true
+
+julia> # qrcode(urilink; format=:ascii, border=1) # Print in the REPL
 ```
 
 ```jldoctest
@@ -68,6 +73,8 @@ julia> pngfile = qrcode(urilink; format="png", path=tmp_png);
 
 julia> isfile(pngfile)
 true
+
+julia> # qrcode(urilink; format=:ascii, border=1) # Print in the REPL
 ```
 
 ```jldoctest
@@ -119,6 +126,8 @@ julia> pngfile = qrcode(urilink; format="png", path=tmp_png);
 
 julia> isfile(pngfile)
 true
+
+julia> # qrcode(urilink; format=:ascii, border=1) # Print in the REPL
 ```
 
 See also [`generate_secret`](@ref), [`AbstractOTP`](@ref), [`HOTP`](@ref), 
@@ -374,7 +383,7 @@ function _build_ocra_message(
             break
         end
     end
-    for (tag, len) in (("S064", 64), ("S128", 128), ("S256", 256), 
+    for (tag, len) in (("S064", 64), ("S128", 128), ("S256", 256),
         ("S512", 512))
         if occursin(tag, DataInput)
             sb = codeunits(session_info)
@@ -874,7 +883,8 @@ end
 
 Generate a QR-code for a provisioning `uri`.  Supports:
 - SVG (`:svg`, returns SVG text),
-- Bitmap (`"png"`, `"jpg"`, `"gif"`, writes to `path`).
+- Bitmap (`"png"`, `"jpg"`, `"gif"`, writes to `path`) and
+- Terminal ASCII (`:ascii`, prints a scannable QR code in the REPL).
 
 # Examples
 ```jldoctest
@@ -904,6 +914,8 @@ julia> pngfile = qrcode(urilink; format="png", path=tmp_png);
 
 julia> isfile(pngfile)
 true
+
+julia> # qrcode(urilink; format=:ascii, border=1) # Print in the REPL
 ```
 
 See also [`uri`](@ref) and [`exportsvg`](@ref).
@@ -916,7 +928,14 @@ function qrcode(uri::AbstractString;
     darkcolor::String="#000",
     lightcolor::String="#fff")
     fmt = lowercase(string(format))
-    if fmt == "svg"
+    if fmt == "ascii"
+        # Terminal-friendly QR
+        mat = QRCoders.qrcode(uri; width=border)
+        for row in eachrow(mat)
+            println(join(map(x -> x ? "██" : "  ", row)))
+        end
+        return nothing
+    elseif fmt == "svg"
         return exportsvg(uri; size=size,
             border=border,
             path=path,

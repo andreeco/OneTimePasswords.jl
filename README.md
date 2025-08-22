@@ -35,10 +35,10 @@ julia> account = "alice@example.com";
 
 julia> issuer  = "MyApp";
 
-julia> hotp_uri = uri(HOTP(), secret, account, issuer;
+julia> urilink = uri(HOTP(), secret, account, issuer;
                digits=6, counter=0, algorithm=:SHA1);
 
-julia> svg = qrcode(hotp_uri; format=:svg, size=200, border=2);
+julia> svg = qrcode(urilink; format=:svg, size=200, border=2);
 
 julia> tmp_svg = tempname() * "hotp.svg";
 
@@ -48,7 +48,12 @@ julia> open(tmp_svg,"w") do io
 
 julia> tmp_png = tempname() * "hotp.png";
 
-julia> qrcode(hotp_uri; format="png", path=tmp_png);
+julia> pngfile = qrcode(urilink; format="png", path=tmp_png);
+
+julia> isfile(pngfile)
+true
+
+julia> # qrcode(urilink; format=:ascii, border=1) # Print in the REPL
 ```
 
 ```julia
@@ -82,6 +87,8 @@ julia> pngfile = qrcode(urilink; format="png", path=tmp_png);
 
 julia> isfile(pngfile)
 true
+
+julia> # qrcode(urilink; format=:ascii, border=1) # Print in the REPL
 ```
 
 ```julia
@@ -133,6 +140,8 @@ julia> pngfile = qrcode(urilink; format="png", path=tmp_png);
 
 julia> isfile(pngfile)
 true
+
+julia> # qrcode(urilink; format=:ascii, border=1) # Print in the REPL
 ```
 
 ## Documentation
