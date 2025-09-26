@@ -1,0 +1,98 @@
+## HOTP Workflow
+
+#### Registration (Provisioning)
+```mermaid
+sequenceDiagram
+    participant User
+    participant ClientApp
+    participant Server
+
+    Server->>Server: secret = generate_secret()
+    Server->>ClientApp: Send provisioning URI/QR (via email/app/web etc)
+    ClientApp->>User: Display/setup QR or secret in Authenticator App
+    User->>Authenticator: Scanner/Inputs secret
+```
+
+#### Authentication (Login)
+```mermaid
+sequenceDiagram
+    participant User
+    participant Authenticator
+    participant ClientApp
+    participant Server
+
+    User->>Authenticator: Request one-time code (counter-based)
+    Authenticator-->>User: Shows HOTP code
+    User->>ClientApp: Enters code (plus identifier)
+    ClientApp->>Server: Send code and current counter
+    Server->>Server: verify(HOTP(), secret, counter, code)
+    Server-->>ClientApp: Accept or Reject
+```
+
+---
+
+## TOTP Workflow
+
+#### Registration (Provisioning)
+```mermaid
+sequenceDiagram
+    participant User
+    participant ClientApp
+    participant Server
+
+    Server->>Server: secret = generate_secret()
+    Server->>ClientApp: Send provisioning URI/QR
+    ClientApp->>User: Show QR code to scan in Authenticator App
+    User->>Authenticator: Scan QR / Type secret
+```
+
+#### Authentication (Login)
+```mermaid
+sequenceDiagram
+    participant User
+    participant Authenticator
+    participant ClientApp
+    participant Server
+
+    User->>Authenticator: Open app, reads TOTP (clock-based)
+    Authenticator-->>User: Shows TOTP code
+    User->>ClientApp: Enter code (plus identifier)
+    ClientApp->>Server: Send code
+    Server->>Server: verify(TOTP(), secret, code)
+    Server-->>ClientApp: Accept or Reject
+```
+
+---
+
+## OCRA Workflow
+
+#### Registration (Provisioning)
+```mermaid
+sequenceDiagram
+    participant User
+    participant ClientApp
+    participant Server
+
+    Server->>Server: secret = generate_secret()
+    Server->>ClientApp: Send OCRA suite & QR/secret details
+    ClientApp->>User: Provision secret & method in Authenticator App
+    User->>Authenticator: Scan/add ocra config
+```
+
+#### Authentication (Challenge-Response)
+```mermaid
+sequenceDiagram
+    participant User
+    participant Authenticator
+    participant ClientApp
+    participant Server
+
+    Server->>ClientApp: Send challenge (and session info if applicable)
+    ClientApp->>User: Show challenge (e.g. transaction, string, time)
+    User->>Authenticator: Input challenge as prompted
+    Authenticator-->>User: Shows response code
+    User->>ClientApp: Enter code (plus challenge etc.)
+    ClientApp->>Server: Send code, challenge, etc.
+    Server->>Server: verify(OCRA(), secret, code, challenge=..., ...)
+    Server-->>ClientApp: Accept or Reject
+```
