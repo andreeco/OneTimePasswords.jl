@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>API · OneTimePasswords.jl</title><meta name="title" content="API · OneTimePasswords.jl"/><meta property="og:title" content="API · OneTimePasswords.jl"/><meta property="twitter:title" content="API · OneTimePasswords.jl"/><meta name="description" content="Documentation for OneTimePasswords.jl."/><meta property="og:description" content="Documentation for OneTimePasswords.jl."/><meta property="twitter:description" content="Documentation for OneTimePasswords.jl."/><meta property="og:url" content="https://andreeco.github.io/OneTimePasswords.jl/api/"/><meta property="twitter:url" content="https://andreeco.github.io/OneTimePasswords.jl/api/"/><link rel="canonical" href="https://andreeco.github.io/OneTimePasswords.jl/api/"/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">OneTimePasswords.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li class="is-active"><a class="tocitem" href>API</a><ul class="internal"><li class="toplevel"><a class="tocitem" href="#API"><span>API</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>API</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>API</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/andreeco/OneTimePasswords.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/andreeco/OneTimePasswords.jl/blob/main/docs/src/api.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Index"><a class="docs-heading-anchor" href="#Index">Index</a><a id="Index-1"></a><a class="docs-heading-anchor-permalink" href="#Index" title="Permalink"></a></h1><ul><li><a href="#OneTimePasswords.OneTimePasswords"><code>OneTimePasswords.OneTimePasswords</code></a></li><li><a href="#OneTimePasswords.AbstractOTP"><code>OneTimePasswords.AbstractOTP</code></a></li><li><a href="#OneTimePasswords.HOTP"><code>OneTimePasswords.HOTP</code></a></li><li><a href="#OneTimePasswords.OCRA"><code>OneTimePasswords.OCRA</code></a></li><li><a href="#OneTimePasswords.TOTP"><code>OneTimePasswords.TOTP</code></a></li><li><a href="#OneTimePasswords._build_ocra_message"><code>OneTimePasswords._build_ocra_message</code></a></li><li><a href="#OneTimePasswords._dynamic_truncate-Tuple{Vector{UInt8}, Int64}"><code>OneTimePasswords._dynamic_truncate</code></a></li><li><a href="#OneTimePasswords._hmac-Tuple{Symbol, Vector{UInt8}, Vector{UInt8}}"><code>OneTimePasswords._hmac</code></a></li><li><a href="#OneTimePasswords.base32decode-Tuple{AbstractString}"><code>OneTimePasswords.base32decode</code></a></li><li><a href="#OneTimePasswords.base32encode-Tuple{Vector{UInt8}}"><code>OneTimePasswords.base32encode</code></a></li><li><a href="#OneTimePasswords.exportsvg-Tuple{AbstractString}"><code>OneTimePasswords.exportsvg</code></a></li><li><a href="#OneTimePasswords.generate-Tuple{OCRA, AbstractString}"><code>OneTimePasswords.generate</code></a></li><li><a href="#OneTimePasswords.generate-Tuple{TOTP, AbstractString}"><code>OneTimePasswords.generate</code></a></li><li><a href="#OneTimePasswords.generate-Tuple{HOTP, AbstractString, Integer}"><code>OneTimePasswords.generate</code></a></li><li><a href="#OneTimePasswords.generate_secret"><code>OneTimePasswords.generate_secret</code></a></li><li><a href="#OneTimePasswords.qrcode-Tuple{AbstractString}"><code>OneTimePasswords.qrcode</code></a></li><li><a href="#OneTimePasswords.uri-Tuple{TOTP, AbstractString, AbstractString, AbstractString}"><code>OneTimePasswords.uri</code></a></li><li><a href="#OneTimePasswords.uri-Tuple{HOTP, AbstractString, AbstractString, AbstractString}"><code>OneTimePasswords.uri</code></a></li><li><a href="#OneTimePasswords.uri-Tuple{OCRA, AbstractString, AbstractString, AbstractString}"><code>OneTimePasswords.uri</code></a></li><li><a href="#OneTimePasswords.verify-Tuple{OCRA, AbstractString, AbstractString}"><code>OneTimePasswords.verify</code></a></li><li><a href="#OneTimePasswords.verify-Tuple{TOTP, AbstractString, AbstractString}"><code>OneTimePasswords.verify</code></a></li><li><a href="#OneTimePasswords.verify-Tuple{HOTP, AbstractString, Integer, AbstractString}"><code>OneTimePasswords.verify</code></a></li></ul><h1 id="API"><a class="docs-heading-anchor" href="#API">API</a><a id="API-1"></a><a class="docs-heading-anchor-permalink" href="#API" title="Permalink"></a></h1><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.OneTimePasswords" href="#OneTimePasswords.OneTimePasswords"><code>OneTimePasswords.OneTimePasswords</code></a> — <span class="docstring-category">Module</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">module OneTimePasswords</code></pre><p>A minimal, fast Julia module for generating and verifying counter-based (HOTP, RFC 4226), time-based (TOTP, RFC 6238) and  challenge-response (OCRA, RFC 6287) one-time passwords. Also provides provisioning URIs and QR-codes for authenticator apps.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords
+
+julia&gt; secret = generate_secret();
+
+julia&gt; code = generate(HOTP(), secret, 0; digits=6);
+
+julia&gt; verify(HOTP(), secret, 0, code)
+true
+
+julia&gt; account = &quot;alice@example.com&quot;;
+
+julia&gt; issuer  = &quot;MyApp&quot;;
+
+julia&gt; urilink = uri(HOTP(), secret, account, issuer;
+               digits=6, counter=0, algorithm=:SHA1);
+
+julia&gt; svg = qrcode(urilink; format=:svg, size=200, border=2);
+
+julia&gt; tmp_svg = tempname() * &quot;hotp.svg&quot;;
+
+julia&gt; open(tmp_svg,&quot;w&quot;) do io
+           write(io, svg)
+       end;
+
+julia&gt; tmp_png = tempname() * &quot;hotp.png&quot;;
+
+julia&gt; pngfile = qrcode(urilink; format=&quot;png&quot;, path=tmp_png);
+
+julia&gt; isfile(pngfile)
+true
+
+julia&gt; # qrcode(urilink; format=:ascii, border=1) # Print in the REPL</code></pre><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords, Dates
+
+julia&gt; secret = generate_secret();
+
+julia&gt; code = generate(TOTP(), secret; period=Second(30), digits=6);
+
+julia&gt; verify(TOTP(), secret, code; allowed_drift=Second(30))
+true
+
+julia&gt; account = &quot;alice@example.com&quot;;
+
+julia&gt; issuer  = &quot;MyApp&quot;;
+
+julia&gt; urilink = uri(TOTP(), secret, account, issuer; digits=6, 
+       period=Second(30));
+
+julia&gt; svg = qrcode(urilink; format=:svg, size=200, border=2);
+
+julia&gt; tmp_svg = tempname() * &quot;.svg&quot;;
+
+julia&gt; open(tmp_svg, &quot;w&quot;) do io
+           write(io, svg)
+       end;
+
+julia&gt; tmp_png = tempname() * &quot;.png&quot;;
+
+julia&gt; pngfile = qrcode(urilink; format=&quot;png&quot;, path=tmp_png);
+
+julia&gt; isfile(pngfile)
+true
+
+julia&gt; # qrcode(urilink; format=:ascii, border=1) # Print in the REPL</code></pre><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords, Dates
+
+julia&gt; secret = generate_secret();
+
+julia&gt; suite = &quot;OCRA-1:HOTP-SHA512-8:QA10-T1M&quot;;
+
+julia&gt; dt = DateTime(2020,1,1,0,0,30)
+2020-01-01T00:00:30
+
+julia&gt; code = generate(OCRA(), secret;
+                          suite=suite,
+                          challenge=&quot;SIG1400000&quot;,
+                          timestamp=dt,
+                          digits=8,
+                          algorithm=:SHA512);
+
+julia&gt; verify(OCRA(), secret, code;
+               suite=suite,
+               challenge=&quot;SIG1400000&quot;,
+               timestamp=dt + Second(60),
+               allowed_drift=Second(60),
+               digits=8,
+               algorithm=:SHA512)
+true
+
+julia&gt; account = &quot;alice@example.com&quot;;
+
+julia&gt; issuer  = &quot;MyApp&quot;;
+
+julia&gt; urilink = uri(OCRA(), secret, &quot;bob&quot;, &quot;MyApp&quot;;
+            suite=suite,
+            challenge=&quot;SIG1400000&quot;,
+            timestamp=dt);
+
+julia&gt; svg = qrcode(urilink; format=:svg, size=200, border=2);
+
+julia&gt; tmp_svg = tempname() * &quot;.svg&quot;;
+
+julia&gt; open(tmp_svg, &quot;w&quot;) do io
+           write(io, svg)
+       end;
+
+julia&gt; tmp_png = tempname() * &quot;.png&quot;;
+
+julia&gt; pngfile = qrcode(urilink; format=&quot;png&quot;, path=tmp_png);
+
+julia&gt; isfile(pngfile)
+true
+
+julia&gt; # qrcode(urilink; format=:ascii, border=1) # Print in the REPL</code></pre><p>See also <a href="#OneTimePasswords.generate_secret"><code>generate_secret</code></a>, <a href="#OneTimePasswords.AbstractOTP"><code>AbstractOTP</code></a>, <a href="#OneTimePasswords.HOTP"><code>HOTP</code></a>,  <a href="#OneTimePasswords.TOTP"><code>TOTP</code></a>, <a href="#OneTimePasswords.OCRA"><code>OCRA</code></a>,  <a href="#OneTimePasswords.generate-Tuple{HOTP, AbstractString, Integer}"><code>generate</code></a>, <a href="#OneTimePasswords.verify-Tuple{HOTP, AbstractString, Integer, AbstractString}"><code>verify</code></a>  <a href="#OneTimePasswords.uri-Tuple{HOTP, AbstractString, AbstractString, AbstractString}"><code>uri</code></a> and <a href="#OneTimePasswords.qrcode-Tuple{AbstractString}"><code>qrcode</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L1-L136">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.AbstractOTP" href="#OneTimePasswords.AbstractOTP"><code>OneTimePasswords.AbstractOTP</code></a> — <span class="docstring-category">Type</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">AbstractOTP</code></pre><p>Abstract supertype for one-time-password generators.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L208-L212">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.HOTP" href="#OneTimePasswords.HOTP"><code>OneTimePasswords.HOTP</code></a> — <span class="docstring-category">Type</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">HOTP()</code></pre><p>Counter-based OTP (RFC 4226).</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L215-L219">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.OCRA" href="#OneTimePasswords.OCRA"><code>OneTimePasswords.OCRA</code></a> — <span class="docstring-category">Type</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">OCRA()</code></pre><p>The OATH Challenge-Response Algorithm (RFC 6287).</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L229-L233">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.TOTP" href="#OneTimePasswords.TOTP"><code>OneTimePasswords.TOTP</code></a> — <span class="docstring-category">Type</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">TOTP()</code></pre><p>Time-based OTP (RFC 6238).</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L222-L226">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords._build_ocra_message" href="#OneTimePasswords._build_ocra_message"><code>OneTimePasswords._build_ocra_message</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">_build_ocra_message(
+    suite::AbstractString,
+    counter::Union{Nothing,Int}=nothing,
+    challenge::AbstractString=&quot;&quot;,
+    passwordhash::AbstractString=&quot;&quot;,
+    session_info::AbstractString=&quot;&quot;,
+    timestamp::Union{Nothing,Int}=nothing)::Vector{UInt8}</code></pre><p>Construct the binary “DataInput” value for OCRA (RFC 6287).</p><p>The overall layout is:</p><p>DataInput = UTF8(suite) ‖ 0x00 ‖ [ C ] ‖ [ Q ] ‖ [ P ] ‖ [ S ] ‖ [ T ]</p><p>where</p><ul><li>Suite: UTF-8 bytes of the suite string, then a 0x00 separator.</li><li>C: 8-byte big-endian counter (if suite contains “C”).</li><li>Q: challenge field (numeric/hex/alpha, padded per Qxxx) (if “Q”).</li><li>P: password-hash left-padded to the HMAC output length (if PSHAx).  </li><li>S: session_info UTF-8 right-padded to Snnn bytes (if Snnn).</li><li>T: 8-byte big-endian timestamp (if suite contains “T”).</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L314-L336">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords._dynamic_truncate-Tuple{Vector{UInt8}, Int64}" href="#OneTimePasswords._dynamic_truncate-Tuple{Vector{UInt8}, Int64}"><code>OneTimePasswords._dynamic_truncate</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">_dynamic_truncate(h::Vector{UInt8}, digits::Int)::String</code></pre><p>Perform dynamic truncation (as in HOTP) on the HMAC result h and return the OTP as a zero-padded string of length digits.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L405-L410">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords._hmac-Tuple{Symbol, Vector{UInt8}, Vector{UInt8}}" href="#OneTimePasswords._hmac-Tuple{Symbol, Vector{UInt8}, Vector{UInt8}}"><code>OneTimePasswords._hmac</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">_hmac(algorithm::Symbol, key::Vector{UInt8}, 
+    msg::Vector{UInt8})::Vector{UInt8}</code></pre><p>Compute the HMAC of msg using key and the selected algorithm. Supported algorithms are :SHA1, :SHA256, and :SHA512.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L168-L174">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.base32decode-Tuple{AbstractString}" href="#OneTimePasswords.base32decode-Tuple{AbstractString}"><code>OneTimePasswords.base32decode</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">base32decode(str::AbstractString)::Vector{UInt8}</code></pre><p>Decode a Base32 string (per RFC 4648) into a vector of bytes. The input string is <em>not</em> case sensitive and may contain whitespace or  padding (<code>=</code>). Throws an exception on invalid characters or impossible encoding.</p><p>See also <a href="#OneTimePasswords.base32encode-Tuple{Vector{UInt8}}"><code>base32encode</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L156-L165">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.base32encode-Tuple{Vector{UInt8}}" href="#OneTimePasswords.base32encode-Tuple{Vector{UInt8}}"><code>OneTimePasswords.base32encode</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">base32encode(bytes::Vector{UInt8})::String</code></pre><p>Encode a byte vector to a Base32 string according to  <a href="https://datatracker.ietf.org/doc/html/rfc4648">RFC 4648</a>. Result is always ASCII, using uppercase A-Z and digits 2-7, with <code>=</code> padding.</p><p>See also <a href="#OneTimePasswords.base32decode-Tuple{AbstractString}"><code>base32decode</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L145-L153">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.exportsvg-Tuple{AbstractString}" href="#OneTimePasswords.exportsvg-Tuple{AbstractString}"><code>OneTimePasswords.exportsvg</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">exportsvg(
+  msg::AbstractString;
+  size::Int=240,
+  border::Int=4,
+  path::Union{Nothing,String}=nothing,
+  darkcolor::String=&quot;#000&quot;,
+  lightcolor::String=&quot;#fff&quot;
+)::String</code></pre><p>Generate an SVG <code>&lt;svg&gt;…&lt;/svg&gt;</code> QR-code encoding <code>msg</code>. If <code>path</code> is given, also write the SVG to that file.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords
+
+julia&gt; OneTimePasswords.exportsvg(&quot;otpauth://totp/bob?...&quot;, size=200);</code></pre><p>See also <a href="#OneTimePasswords.qrcode-Tuple{AbstractString}"><code>qrcode</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L823-L844">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.generate-Tuple{HOTP, AbstractString, Integer}" href="#OneTimePasswords.generate-Tuple{HOTP, AbstractString, Integer}"><code>OneTimePasswords.generate</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">generate(::HOTP, secret::AbstractString, counter::Integer;
+         digits::Int=6, algorithm::Symbol=:SHA1)::String</code></pre><p>Compute HOTP for <code>secret</code> and <code>counter</code> (RFC 4226).</p><p><strong>Arguments</strong></p><ul><li><code>secret</code>: Base32-encoded shared secret.</li><li><code>counter</code>: counter value (Integer).</li><li><code>digits</code>: code length (default 6).</li><li><code>algorithm</code>: <code>:SHA1</code>, <code>:SHA256</code>, or <code>:SHA512</code>.</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords
+
+julia&gt; generate(HOTP(), &quot;JBSWY3DPEHPK3PXP&quot;, 0)
+&quot;282760&quot;</code></pre><p>See also <a href="#OneTimePasswords.verify-Tuple{HOTP, AbstractString, Integer, AbstractString}"><code>verify(::HOTP)</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L236-L257">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.generate-Tuple{OCRA, AbstractString}" href="#OneTimePasswords.generate-Tuple{OCRA, AbstractString}"><code>OneTimePasswords.generate</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">generate(::OCRA, secret::AbstractString;
+         suite::AbstractString = &quot;OCRA-1:HOTP-SHA1-6:QN08&quot;,
+         counter::Union{Nothing, Integer}=nothing,
+         challenge::AbstractString=&quot;&quot;,
+         password::AbstractString=&quot;&quot;,
+         session_info::AbstractString=&quot;&quot;,
+         timestamp::Union{Nothing,Integer}=nothing,
+         digits::Int=6,
+         algorithm::Symbol=:SHA1)::String</code></pre><p>Compute an OCRA one-time password (OTP) according to RFC 6287.</p><p>Arguments:</p><ul><li><code>secret</code>: Base32-encoded shared secret.</li><li><code>suite</code>: OCRA suite definition string.</li><li><code>counter</code>: Optional counter value. If omitted, 8 zero bytes are used.</li><li><code>challenge</code>: The challenge/question string (e.g. numeric or hex).</li><li><code>password</code>: Optional password (P) field.</li><li><code>session_info</code>: Optional session information (S) field.</li><li><code>timestamp</code>: Optional timestamp (T) as an integer (e.g. Unix time).  </li><li><code>digits</code>: The number of digits in the OTP.</li><li><code>algorithm</code>: The hash algorithm to use (:SHA1, :SHA256, or :SHA512).</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords, Dates
+
+julia&gt; secret = &quot;M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF&quot;; # generate_secret()
+
+julia&gt; code = generate(OCRA(), secret; suite=&quot;OCRA-1:HOTP-SHA1-6:QN08&quot;,
+            challenge=&quot;12345678&quot;)
+&quot;262022&quot;
+
+julia&gt; suite = &quot;OCRA-1:HOTP-SHA512-8:QA10-T1M&quot;;
+
+julia&gt; dt = DateTime(2020,1,1,0,0,30);
+
+julia&gt; generate(OCRA(), secret;
+                 suite=suite,
+                 challenge=&quot;SIG1400000&quot;,
+                 timestamp=dt,
+                 digits=8,
+                 algorithm=:SHA512)
+&quot;76056551&quot;</code></pre><p>See also <a href="#OneTimePasswords.verify-Tuple{HOTP, AbstractString, Integer, AbstractString}"><code>verify(::OCRA)</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L421-L468">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.generate-Tuple{TOTP, AbstractString}" href="#OneTimePasswords.generate-Tuple{TOTP, AbstractString}"><code>OneTimePasswords.generate</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">generate(::TOTP, secret::AbstractString;
+         time=nothing, period::Period=Second(30), digits::Int=6,
+         algorithm::Symbol=:SHA1)::String</code></pre><p>Compute a TOTP value for <code>secret</code> at the specified <code>time</code> (RFC 6238), with integer step-countging.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords, Dates
+
+julia&gt; secret = &quot;M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF&quot;; # generate_secret()
+
+julia&gt; generate(TOTP(), secret; digits=8);
+
+julia&gt; dt = DateTime(2020,1,1,0,0,30);
+
+julia&gt; generate(TOTP(), secret; time=dt, digits=7, period=Second(30), algorithm=:SHA256)
+&quot;9150483&quot;</code></pre><p>See also <a href="#OneTimePasswords.verify-Tuple{HOTP, AbstractString, Integer, AbstractString}"><code>verify(::TOTP)</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L275-L299">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.generate_secret" href="#OneTimePasswords.generate_secret"><code>OneTimePasswords.generate_secret</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">generate_secret([length::Int=20])::String</code></pre><p>Generate a cryptographically-strong random secret (byte length <code>length</code>) and return it Base32-encoded.  Default is 20 bytes (good for SHA1/TOTP).</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords
+
+julia&gt; secret = generate_secret();</code></pre><p>See also <a href="#OneTimePasswords.base32encode-Tuple{Vector{UInt8}}"><code>base32encode</code></a>, <a href="#OneTimePasswords.base32decode-Tuple{AbstractString}"><code>base32decode</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L187-L201">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.qrcode-Tuple{AbstractString}" href="#OneTimePasswords.qrcode-Tuple{AbstractString}"><code>OneTimePasswords.qrcode</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">qrcode(
+  uri::AbstractString;
+  format::Union{Symbol,String} = :svg,
+  size::Int = 240,
+  border::Int = 4,
+  path::Union{Nothing,String} = nothing,
+  darkcolor::String = &quot;#000&quot;,
+  lightcolor::String = &quot;#fff&quot;
+)::Union{String,String}</code></pre><p>Generate a QR-code for a provisioning <code>uri</code>.  Supports:</p><ul><li>SVG (<code>:svg</code>, returns SVG text),</li><li>Bitmap (<code>&quot;png&quot;</code>, <code>&quot;jpg&quot;</code>, <code>&quot;gif&quot;</code>, writes to <code>path</code>) and</li><li>Terminal ASCII (<code>:ascii</code>, prints a scannable QR code in the REPL).</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords, Dates
+
+julia&gt; secret = &quot;M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF&quot;; # generate_secret()
+
+julia&gt; code = generate(TOTP(), secret; period=Second(30), digits=6);
+
+julia&gt; verify(TOTP(), secret, code; allowed_drift=Second(30))
+true
+
+julia&gt; urilink = uri(TOTP(), secret, &quot;bob@example.com&quot;, &quot;MyApp&quot;; digits=6, 
+       period=Second(30));
+
+julia&gt; svg = qrcode(urilink; format=:svg, size=200, border=2);
+
+julia&gt; tmp_svg = tempname() * &quot;.svg&quot;;
+
+julia&gt; open(tmp_svg, &quot;w&quot;) do io
+           write(io, svg)
+       end;
+
+julia&gt; tmp_png = tempname() * &quot;.png&quot;;
+
+julia&gt; pngfile = qrcode(urilink; format=&quot;png&quot;, path=tmp_png);
+
+julia&gt; isfile(pngfile)
+true
+
+julia&gt; # qrcode(urilink; format=:ascii, border=1) # Print in the REPL</code></pre><p>See also <a href="#OneTimePasswords.uri-Tuple{HOTP, AbstractString, AbstractString, AbstractString}"><code>uri</code></a> and <a href="#OneTimePasswords.exportsvg-Tuple{AbstractString}"><code>exportsvg</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L873-L922">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.uri-Tuple{HOTP, AbstractString, AbstractString, AbstractString}" href="#OneTimePasswords.uri-Tuple{HOTP, AbstractString, AbstractString, AbstractString}"><code>OneTimePasswords.uri</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">uri(::HOTP, secret::AbstractString,
+    account::AbstractString, issuer::AbstractString;
+    digits::Int=6, counter::Integer=0,
+    algorithm::Symbol=:SHA1)::String</code></pre><p>Return an <code>otpauth://hotp/...</code> provisioning URI for HOTP.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords
+
+julia&gt; secret = &quot;M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF&quot;; # generate_secret()
+
+julia&gt; uri(HOTP(), secret, &quot;bob@example.com&quot;, &quot;MyApp&quot;; counter=5)
+&quot;otpauth://hotp/MyApp%3Abob%40example.com?secret=M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF&amp;issuer=MyApp&amp;digits=6&amp;counter=5&amp;algorithm=SHA1&quot;</code></pre><p>See also <a href="#OneTimePasswords.qrcode-Tuple{AbstractString}"><code>qrcode</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L668-L687">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.uri-Tuple{OCRA, AbstractString, AbstractString, AbstractString}" href="#OneTimePasswords.uri-Tuple{OCRA, AbstractString, AbstractString, AbstractString}"><code>OneTimePasswords.uri</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">uri(::OCRA, secret::AbstractString,
+    account::AbstractString, issuer::AbstractString;
+    suite::AbstractString=&quot;OCRA-1:HOTP-SHA1-6:QN08&quot;,
+    digits::Int=6,
+    algorithm::Symbol=:SHA1,
+    counter::Union{Nothing,Int}=nothing,
+    challenge::AbstractString=&quot;&quot;,
+    password::AbstractString=&quot;&quot;,
+    session_info::AbstractString=&quot;&quot;,
+    timestamp::Union{Nothing,Int,DateTime}=nothing
+   )::String</code></pre><p>Return an <code>otpauth://ocra/...</code> provisioning URI for OCRA.</p><p>The label will be <code>issuer:account</code> (percent-escaped), and the query string will include <code>secret</code>, <code>issuer</code>, <code>suite</code>, <code>digits</code>, <code>algorithm</code>, and any of the optional fields you pass in.</p><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords
+
+julia&gt; secret = &quot;M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF&quot;; # generate_secret()
+
+julia&gt; uri(OCRA(), secret, &quot;bob@example.com&quot;, &quot;MyApp&quot;);
+
+julia&gt; uri(OCRA(), secret, &quot;alice@site.com&quot;, &quot;YourOrg&quot;;
+            suite=&quot;OCRA-1:HOTP-SHA256-8:C-QN08-PSHA1&quot;,
+            digits=8,
+            algorithm=:SHA256,
+            counter=5,
+            challenge=&quot;12345678&quot;,
+            password=&quot;7110eda4d09e062aa5e4a390b0a572ac0d2c0220&quot;);</code></pre><p>See also <a href="#OneTimePasswords.qrcode-Tuple{AbstractString}"><code>qrcode</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L741-L777">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.uri-Tuple{TOTP, AbstractString, AbstractString, AbstractString}" href="#OneTimePasswords.uri-Tuple{TOTP, AbstractString, AbstractString, AbstractString}"><code>OneTimePasswords.uri</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">uri(::TOTP, secret::AbstractString,
+    account::AbstractString, issuer::AbstractString;
+    digits::Int=6, period::Period=Second(30))::String</code></pre><p>Return an <code>otpauth://totp/...</code> provisioning URI for TOTP.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords
+
+julia&gt; secret = &quot;M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF&quot;; # generate_secret()
+
+julia&gt; uri(TOTP(), secret, &quot;alice@example.com&quot;, &quot;MyApp&quot;);
+
+julia&gt; uri(TOTP(), secret, &quot;bob@site.com&quot;, &quot;YourApp&quot;; digits=8, period=60)
+&quot;otpauth://totp/YourApp%3Abob%40site.com?secret=M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF&amp;issuer=YourApp&amp;digits=8&amp;period=60&quot;</code></pre><p>See also <a href="#OneTimePasswords.qrcode-Tuple{AbstractString}"><code>qrcode</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L705-L725">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.verify-Tuple{HOTP, AbstractString, Integer, AbstractString}" href="#OneTimePasswords.verify-Tuple{HOTP, AbstractString, Integer, AbstractString}"><code>OneTimePasswords.verify</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">verify(::HOTP, secret::AbstractString, counter::Integer,
+       code::AbstractString; digits::Int=6,
+       algorithm::Symbol=:SHA1)::Bool</code></pre><p>Return <code>true</code> if <code>code</code> matches the HOTP for <code>secret</code> and <code>counter</code>.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords
+
+julia&gt; secret = generate_secret();
+
+julia&gt; code = generate(HOTP(), secret, 123; digits=6);
+
+julia&gt; verify(HOTP(), secret, 123, code)
+true
+
+julia&gt; verify(HOTP(), secret, 124, code)
+false</code></pre><p>See also <a href="#OneTimePasswords.generate-Tuple{HOTP, AbstractString, Integer}"><code>generate(::HOTP)</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L490-L513">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.verify-Tuple{OCRA, AbstractString, AbstractString}" href="#OneTimePasswords.verify-Tuple{OCRA, AbstractString, AbstractString}"><code>OneTimePasswords.verify</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">verify(::OCRA, secret::AbstractString, code::AbstractString;
+       suite::AbstractString = &quot;OCRA-1:HOTP-SHA1-6:QN08&quot;,
+       counter::Union{Nothing, Integer}=nothing,
+       challenge::AbstractString=&quot;&quot;,
+       password::AbstractString=&quot;&quot;,
+       session_info::AbstractString=&quot;&quot;,
+       timestamp::Union{Nothing,Integer}=nothing,
+       allowed_drift::Period=Second(0),
+       digits::Int=6,
+       algorithm::Symbol=:SHA1)::Bool</code></pre><p>Verify that the provided code matches the OCRA OTP.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords, Dates
+
+julia&gt; secret = generate_secret();
+
+julia&gt; code = generate(OCRA(), secret; challenge=&quot;12345678&quot;);
+
+julia&gt; verify(OCRA(), secret, code; challenge=&quot;12345678&quot;)
+true</code></pre><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords, Dates
+
+julia&gt; secret = generate_secret();
+
+julia&gt; suite = &quot;OCRA-1:HOTP-SHA512-8:QA10-T1M&quot;;
+
+julia&gt; dt = DateTime(2020,1,1,0,0,30)
+2020-01-01T00:00:30
+
+julia&gt; code2 = generate(OCRA(), secret;
+                          suite=suite,
+                          challenge=&quot;SIG1400000&quot;,
+                          timestamp=dt,
+                          digits=8,
+                          algorithm=:SHA512);
+
+julia&gt; verify(OCRA(), secret, code2;
+               suite=suite,
+               challenge=&quot;SIG1400000&quot;,
+               timestamp=dt + Second(60),
+               allowed_drift=Second(60),
+               digits=8,
+               algorithm=:SHA512)
+true</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L573-L625">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="OneTimePasswords.verify-Tuple{TOTP, AbstractString, AbstractString}" href="#OneTimePasswords.verify-Tuple{TOTP, AbstractString, AbstractString}"><code>OneTimePasswords.verify</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">verify(::TOTP, secret::AbstractString, code::AbstractString;
+       period::Period=Second(30), allowed_drift::Period=Second(30),
+       digits::Int=6, time=nothing,
+       algorithm::Symbol=:SHA1)::Bool</code></pre><p>Return <code>true</code> if <code>code</code> is a valid TOTP for <code>secret</code> at <code>time</code>, allowing ±<code>allowed_drift</code> time window.</p><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using OneTimePasswords, Dates
+
+julia&gt; secret = &quot;M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF&quot;; # generate_secret()
+
+julia&gt; dt = DateTime(2022,1,1,0,0,30);
+
+julia&gt; code = generate(TOTP(), secret; time=dt, digits=8);
+
+julia&gt; verify(TOTP(), secret, code; time=dt, digits=8)
+true
+
+julia&gt; verify(TOTP(), secret, code; time=dt+Minute(1), digits=8,
+                           allowed_drift=Second(60))
+true
+
+julia&gt; verify(TOTP(), secret, code; time=dt+Minute(1), digits=8,
+                           allowed_drift=Second(30))
+false</code></pre><p>See also <a href="#OneTimePasswords.generate-Tuple{HOTP, AbstractString, Integer}"><code>generate(::TOTP)</code></a>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/andreeco/OneTimePasswords.jl/blob/5645bda48c450560b915b35b46c64fb2b80266aa/src/OneTimePasswords.jl#L520-L552">source</a></section></article></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Friday 26 September 2025 19:10">Friday 26 September 2025</span>. Using Julia version 1.11.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
