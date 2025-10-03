@@ -2,9 +2,37 @@
     module OneTimePasswords
 
 A minimal, fast Julia module for generating and verifying
-counter-based (HOTP, RFC 4226), time-based (TOTP, RFC 6238) and 
+counter-based (HOTP, RFC 4226), time-based (TOTP, RFC 6238), and
 challenge-response (OCRA, RFC 6287) one-time passwords.
+
+Implements RFCs 4226, 6238, and 6287. Compliance not guaranteed. Not audited.
+
 Also provides provisioning URIs and QR-codes for authenticator apps.
+
+!!! warning
+    **Security notice:** This library implements only the algorithmic core of
+    HOTP, TOTP, and OCRA. It does **not** provide rate limiting,
+    account lockouts, throttling, replay prevention, or secure memory features.
+    Your application or service layer is responsible for these kind of 
+    protections.
+
+    OTP secrets are returned as Base32-encoded `String` values. In Julia,
+    `String` objects are immutable and not cleared from memory after use;
+    they may persist until garbage collection and can appear in memory dumps.
+    For high-assurance use, consider storing secrets as `Vector{UInt8}`
+    and explicitly overwriting them (with `fill!`) after use.
+
+# Timing and Side-Channel Security
+
+- OTP code comparisons are performed in constant time, mitigating the most
+  common remote timing side-channel attacks.
+- This package does **not** guarantee constant-time execution for secret decoding,
+  key handling, or cryptographic operations. It is not designed for
+  hardware tokens, HSMs, or "side-channel hardened" use cases.
+- For most typical server deployments, this is sufficient. For high-assurance
+  applications (e.g., multi-tenant or hostile environments, or where
+  hardware side-channels are a concern), use a hardened library or a
+  hardware security module (HSM).
 
 # Examples
 ```jldoctest
@@ -80,7 +108,7 @@ julia> # qrcode(urilink; format=:ascii, border=1) # Print in the REPL
 ```jldoctest
 julia> using OneTimePasswords, Dates
 
-julia> secret = generate_secret();
+julia> secret = generate_secret(64);
 
 julia> suite = "OCRA-1:HOTP-SHA512-8:QA10-T1M";
 
@@ -234,13 +262,14 @@ The OATH Challenge-Response Algorithm (RFC 6287).
 struct OCRA <: AbstractOTP end
 
 """
-    generate(::HOTP, secret::AbstractString, counter::Integer;
-             digits::Int=6, algorithm::Symbol=:SHA1)::String
+    generate(::HOTP, secret::Union{AbstractString,Vector{UInt8}}, 
+        counter::Integer; digits::Int=6, algorithm::Symbol=:SHA1)::String
 
 Compute HOTP for `secret` and `counter` (RFC 4226).
 
 # Arguments
-- `secret`: Base32-encoded shared secret.
+- `secret`: may be either a Base32‐encoded `String`, 
+   or the raw key bytes as `Vector{UInt8}`.
 - `counter`: counter value (Integer).
 - `digits`: code length (default 6).
 - `algorithm`: `:SHA1`, `:SHA256`, or `:SHA512`.
@@ -249,15 +278,28 @@ Compute HOTP for `secret` and `counter` (RFC 4226).
 ```jldoctest
 julia> using OneTimePasswords
 
-julia> generate(HOTP(), "JBSWY3DPEHPK3PXP", 0)
-"282760"
+julia> # Base32-encoded String secret
+
+julia> secret = "M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF";
+
+julia> generate(HOTP(), secret, 0)
+"429658"
+
+julia> # secret as `Vector{UInt8}
+
+julia> raw_secret = OneTimePasswords.base32decode(
+                        "M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF");
+
+julia> generate(HOTP(), raw_secret, 0)
+"429658"
 ```
 
 See also [`verify(::HOTP)`](@ref).
 """
-function generate(::HOTP, secret::AbstractString, counter::Integer;
+function generate(::HOTP, secret::Vector{UInt8}, counter::Integer;
     digits::Int=6, algorithm::Symbol=:SHA1)
-    key = base32decode(secret)
+    digits = _check_digits(digits)
+    key = _check_secret_length(algorithm, secret)
     msg = zeros(UInt8, 8)
     for i in 1:8
         msg[9-i] = (counter >> (8 * (i - 1))) & 0xff
@@ -268,47 +310,67 @@ function generate(::HOTP, secret::AbstractString, counter::Integer;
            (UInt32(h[off+2]) << 16) |
            (UInt32(h[off+3]) << 8) |
            UInt32(h[off+4])
-    s = lpad(string(code % UInt32(10^digits)), digits, '0')
-    return s
+    lpad(string(code % UInt32(10^digits)), digits, '0')
+end
+
+function generate(::HOTP, secret::AbstractString, counter::Integer; kwargs...)
+    generate(HOTP(), base32decode(secret), counter; kwargs...)
 end
 
 """
-    generate(::TOTP, secret::AbstractString;
-             time=nothing, period::Period=Second(30), digits::Int=6,
-             algorithm::Symbol=:SHA1)::String
+    generate(::TOTP, secret::Union{AbstractString,Vector{UInt8}};
+             time=nothing, period::Union{Period,Integer}=Second(30), 
+             digits::Int=6, algorithm::Symbol=:SHA1)::String
 
 Compute a TOTP value for `secret` at the specified `time`
 (RFC 6238), with integer step-countging.
+
+!!! warning
+    TOTP (RFC 6238) always uses **UTC** epoch seconds (since Jan 1, 1970 UTC).  
+    If you pass a `DateTime` without a timezone, it is assumed to be **UTC**.  
+    To avoid mismatches, use `Dates.now(UTC)` or an explicit Unix timestamp.
 
 # Examples
 
 ```jldoctest
 julia> using OneTimePasswords, Dates
 
-julia> secret = "M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF"; # generate_secret()
+julia> # Base32-encoded String secret
+
+julia> secret = "CX6NTW67L7XI3RX7CFUNV4I2Z\
+                     SXDVSGPLG4KDZ57IJLTM4SOUPNA===="; # generate_secret(32)
 
 julia> generate(TOTP(), secret; digits=8);
 
 julia> dt = DateTime(2020,1,1,0,0,30);
 
-julia> generate(TOTP(), secret; time=dt, digits=7, period=Second(30), algorithm=:SHA256)
-"9150483"
+julia> generate(TOTP(), secret; time=dt, digits=7, period=Second(30), 
+           algorithm=:SHA256)
+"6413619"
+
+julia> # secret as `Vector{UInt8}
+
+julia> raw_secret = OneTimePasswords.base32decode(secret);
+
+julia> generate(TOTP(), raw_secret; time=dt, digits=7, period=Second(30), 
+           algorithm=:SHA256)
+"6413619"
 ```
 
 See also [`verify(::TOTP)`](@ref).
 """
-function generate(::TOTP, secret::AbstractString;
-    time=nothing,
-    period::Union{Period,Integer}=Second(30),
-    digits::Int=6,
-    algorithm::Symbol=:SHA1)
+function generate(::TOTP, secret::Vector{UInt8};
+    time=nothing, period::Union{Period,Integer}=Second(30),
+    digits::Int=6, algorithm::Symbol=:SHA1)
     t = time === nothing ? Dates.now(UTC) : time
     secs = floor(Int, Dates.datetime2unix(t))
     period_int = period isa Period ? Second(period).value : period
     counter = div(secs, period_int)
-    return generate(HOTP(), secret, counter;
-        digits=digits,
-        algorithm=algorithm)
+    generate(HOTP(), secret, counter; digits=digits, algorithm=algorithm)
+end
+
+function generate(::TOTP, secret::AbstractString; kwargs...)
+    generate(TOTP(), base32decode(secret); kwargs...)
 end
 
 """
@@ -350,11 +412,15 @@ function _build_ocra_message(
         append!(msg, reinterpret(UInt8, [hton(UInt64(c))]))
     end
     if occursin(r"(^|-)Q", DataInput)
-        m = match(r"Q([ANH])(\d\d)", DataInput)
-        m === nothing && error("Invalid OCRASuite, can't parse Q-format: 
-        $DataInput")
+        m = match(r"Q([ANH])(\d+)", DataInput)
+        m === nothing && error("Invalid OCRA suite: unsupported 
+        or malformed Q field")
         typ, maxch = m.captures
         maxch = parse(Int, maxch)
+        if maxch < 4 || maxch > 64
+            error("OCRA challenge field Q must have a length between 4 
+            and 64 (got $maxch)")
+        end
         if typ == "N"
             hexstr = uppercase(string(parse(BigInt, challenge), base=16))
             hexstr = rpad(hexstr, 256, '0')
@@ -365,8 +431,8 @@ function _build_ocra_message(
             qb = hex2bytes(hexstr)
         else
             qb0 = codeunits(challenge)
-            length(qb0) > 128 && error("Q alphanumeric too long: 
-            $(length(qb0)) > 128")
+            length(qb0) > 128 && error("OCRA challenge too long 
+            (max 128 bytes)")
             qb = vcat(qb0, zeros(UInt8, 128 - length(qb0)))
         end
         append!(msg, qb)
@@ -375,7 +441,8 @@ function _build_ocra_message(
         if occursin(tag, DataInput)
             hb = hex2bytes(passwordhash)
             if length(hb) > len
-                error("Password hash too long for $tag")
+                error("Password hash is longer than allowed for suite ($tag)")
+
             end
             prepend = zeros(UInt8, len - length(hb))
             append!(msg, prepend)
@@ -419,7 +486,7 @@ function _dynamic_truncate(h::Vector{UInt8}, digits::Int)
 end
 
 """
-    generate(::OCRA, secret::AbstractString;
+    generate(::OCRA, secret::Union{AbstractString,Vector{UInt8}};
              suite::AbstractString = "OCRA-1:HOTP-SHA1-6:QN08",
              counter::Union{Nothing, Integer}=nothing,
              challenge::AbstractString="",
@@ -432,7 +499,8 @@ end
 Compute an OCRA one-time password (OTP) according to RFC 6287.
 
 Arguments:
-  - `secret`: Base32-encoded shared secret.
+  - `secret`: Base32-encoded shared secret 
+     or the raw key bytes as `Vector{UInt8}`.
   - `suite`: OCRA suite definition string.
   - `counter`: Optional counter value. If omitted, 8 zero bytes are used.
   - `challenge`: The challenge/question string (e.g. numeric or hex).
@@ -446,11 +514,25 @@ Arguments:
 ```jldoctest
 julia> using OneTimePasswords, Dates
 
+julia> # Base32-encoded String secret
+
 julia> secret = "M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF"; # generate_secret()
 
 julia> code = generate(OCRA(), secret; suite="OCRA-1:HOTP-SHA1-6:QN08",
             challenge="12345678")
 "262022"
+
+julia> # secret as `Vector{UInt8}
+
+julia> raw_secret = OneTimePasswords.base32decode(secret);
+
+julia> code = generate(OCRA(), raw_secret; suite="OCRA-1:HOTP-SHA1-6:QN08",
+            challenge="12345678")
+"262022"
+
+julia> secret = "T6AZ35HKKGWJEUACAUG5MK7T3CBZ5M76Q2GHLMHYOXQEHXKKTATGVH73\
+                     QBRRW4MBP4P6QKCVMIMMIIBYEY534KZ\
+                     QB6YVK2TE3II3XZA="; # generate_secret(63)
 
 julia> suite = "OCRA-1:HOTP-SHA512-8:QA10-T1M";
 
@@ -462,11 +544,11 @@ julia> generate(OCRA(), secret;
                  timestamp=dt,
                  digits=8,
                  algorithm=:SHA512)
-"76056551"
+"37236432"
 ```
 See also [`verify(::OCRA)`](@ref).
 """
-function generate(::OCRA, secret::AbstractString;
+function generate(::OCRA, secret::Vector{UInt8};
     suite::AbstractString="OCRA-1:HOTP-SHA1-6:QN08",
     counter::Union{Nothing,Integer}=nothing,
     challenge::AbstractString="",
@@ -475,28 +557,45 @@ function generate(::OCRA, secret::AbstractString;
     timestamp::Union{Nothing,Integer,DateTime}=nothing,
     digits::Int=6,
     algorithm::Symbol=:SHA1)
+    digits = _check_digits(digits)
     ts = if timestamp isa DateTime
         floor(Int, datetime2unix(timestamp))
     else
         timestamp
     end
-    key = base32decode(secret)
+    key = _check_secret_length(algorithm, secret)
     msg = _build_ocra_message(suite, counter, challenge,
         password, session_info, ts)
     h = _hmac(algorithm, key, msg)
     return _dynamic_truncate(h, digits)
 end
 
+function generate(::OCRA, secret::AbstractString; kwargs...)
+    generate(OCRA(), base32decode(secret); kwargs...)
+end
+
 """
-    verify(::HOTP, secret::AbstractString, counter::Integer,
-           code::AbstractString; digits::Int=6,
+    verify(::HOTP, secret::Union{AbstractString,Vector{UInt8}}, 
+           counter::Integer, code::AbstractString; digits::Int=6,
            algorithm::Symbol=:SHA1)::Bool
 
 Return `true` if `code` matches the HOTP for `secret` and `counter`.
 
+Arguments are the same as for `generate(::HOTP)`.  `code` is compared in
+constant time to mitigate timing attacks.
+
+!!! warning
+    **Counter replay**: HOTP (RFC 4226) requires that each counter 
+    value MUST be used at most once. This library does not manage 
+    counters; it only checks whether a single code matches. Your 
+    application/server must track and advance the counter and 
+    reject any reused codes to prevent replay attacks.
+
 # Examples
 ```jldoctest
 julia> using OneTimePasswords
+
+julia> # Base32-encoded String secret
 
 julia> secret = generate_secret();
 
@@ -505,20 +604,31 @@ julia> code = generate(HOTP(), secret, 123; digits=6);
 julia> verify(HOTP(), secret, 123, code)
 true
 
-julia> verify(HOTP(), secret, 124, code)
-false
+julia> # secret as `Vector{UInt8}
+
+julia> raw = OneTimePasswords.base32decode(secret);
+
+julia> code2 = generate(HOTP(), raw, 123);
+
+julia> verify(HOTP(), raw, 123, code2)
+true
 ```
 
 See also [`generate(::HOTP)`](@ref).
 """
-verify(::HOTP, secret::AbstractString, counter::Integer,
+verify(::HOTP, secret::Vector{UInt8}, counter::Integer,
     code::AbstractString; digits::Int=6,
     algorithm::Symbol=:SHA1) =
-    generate(HOTP(), secret, counter;
-        digits=digits, algorithm=algorithm) === code
+    _consttime_eq(generate(HOTP(), secret, counter; digits=digits,
+            algorithm=algorithm), code)
+
+function verify(::HOTP, secret::AbstractString, counter::Integer,
+    code::AbstractString; kwargs...)
+    verify(HOTP(), base32decode(secret), counter, code; kwargs...)
+end
 
 """
-    verify(::TOTP, secret::AbstractString, code::AbstractString;
+    verify(::TOTP, secret, code::AbstractString;
            period::Period=Second(30), allowed_drift::Period=Second(30),
            digits::Int=6, time=nothing,
            algorithm::Symbol=:SHA1)::Bool
@@ -526,9 +636,22 @@ verify(::HOTP, secret::AbstractString, counter::Integer,
 Return `true` if `code` is a valid TOTP for `secret` at `time`, allowing
 ±`allowed_drift` time window.
 
+!!! warning
+    TOTP (RFC 6238) always uses **UTC** epoch seconds (since Jan 1, 1970 UTC).  
+    If you pass a `DateTime` without a timezone, it is assumed to be **UTC**.  
+    To avoid mismatches, use `Dates.now(UTC)` or an explicit Unix timestamp.
+
+!!! warning
+    **Allowed drift window**: By default, verification allows ±30 seconds 
+    (one time-step) of drift. Increasing this `allowed_drift` widens the 
+    acceptance window and makes brute forcing easier. For best security,
+    keep the drift window as small as your deployment can tolerate.
+
 # Examples
 ```jldoctest
 julia> using OneTimePasswords, Dates
+
+julia> # Base32-encoded String secret
 
 julia> secret = "M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF"; # generate_secret()
 
@@ -546,11 +669,17 @@ true
 julia> verify(TOTP(), secret, code; time=dt+Minute(1), digits=8,
                            allowed_drift=Second(30))
 false
-```
 
+julia> # secret as `Vector{UInt8}
+
+julia> raw_secret = OneTimePasswords.base32decode(secret);
+
+julia> verify(TOTP(), raw_secret, code; time=dt, digits=8)
+true
+```
 See also [`generate(::TOTP)`](@ref).
 """
-function verify(::TOTP, secret::AbstractString, code::AbstractString;
+function verify(::TOTP, secret::Vector{UInt8}, code::AbstractString;
     period::Union{Period,Integer}=Second(30),
     allowed_drift::Union{Period,Integer}=Second(30),
     digits::Int=6,
@@ -562,12 +691,20 @@ function verify(::TOTP, secret::AbstractString, code::AbstractString;
     counter = div(secs, period_int)
     window = Int(div(Second(allowed_drift).value, period_int))
     for δ in -window:window
-        if generate(HOTP(), secret, counter + δ; digits=digits,
-            algorithm=algorithm) == code
+        # compute candidate OTP for this time‐step
+        candidate = generate(HOTP(), secret, counter + δ;
+            digits=digits,
+            algorithm=algorithm)
+        # compare in constant time
+        if _consttime_eq(candidate, code)
             return true
         end
     end
     return false
+end
+
+function verify(::TOTP, secret::AbstractString, code::AbstractString; kwargs...)
+    verify(TOTP(), base32decode(secret), code; kwargs...)
 end
 
 """
@@ -577,7 +714,7 @@ end
            challenge::AbstractString="",
            password::AbstractString="",
            session_info::AbstractString="",
-           timestamp::Union{Nothing,Integer}=nothing,
+           timestamp::Union{Nothing,Integer,DateTime}=nothing,
            allowed_drift::Period=Second(0),
            digits::Int=6,
            algorithm::Symbol=:SHA1)::Bool
@@ -588,11 +725,20 @@ Verify that the provided code matches the OCRA OTP.
 ```jldoctest
 julia> using OneTimePasswords, Dates
 
+julia> # Base32-encoded String secret
+
 julia> secret = generate_secret();
 
 julia> code = generate(OCRA(), secret; challenge="12345678");
 
 julia> verify(OCRA(), secret, code; challenge="12345678")
+true
+
+julia> # secret as `Vector{UInt8}
+
+julia> raw_secret = OneTimePasswords.base32decode(secret);
+
+julia> verify(OCRA(), raw_secret, code; challenge="12345678")
 true
 ```
 
@@ -605,6 +751,10 @@ julia> suite = "OCRA-1:HOTP-SHA512-8:QA10-T1M";
 
 julia> dt = DateTime(2020,1,1,0,0,30)
 2020-01-01T00:00:30
+
+julia> secret = "T6AZ35HKKGWJEUACAUG5MK7T3CBZ5M76Q2GHLMHYOXQEHXKKTATGVH73\
+                     QBRRW4MBP4P6QKCVMIMMIIBYEY534KZ\
+                     QB6YVK2TE3II3XZA="; # generate_secret(63)
 
 julia> code2 = generate(OCRA(), secret;
                           suite=suite,
@@ -623,7 +773,7 @@ julia> verify(OCRA(), secret, code2;
 true
 ```
 """
-function verify(::OCRA, secret::AbstractString, code::AbstractString;
+function verify(::OCRA, secret::Vector{UInt8}, code::AbstractString;
     suite::AbstractString="OCRA-1:HOTP-SHA1-6:QN08",
     counter::Union{Nothing,Integer}=nothing,
     challenge::AbstractString="",
@@ -647,8 +797,10 @@ function verify(::OCRA, secret::AbstractString, code::AbstractString;
     end
     window = step == 0 ? 0 : Int(div(Second(allowed_drift).value, step))
     for δ in -window:window
-        tpass = ts_dt === nothing || step == 0 ? ts_dt :
+        # shift timestamp / counter by ±δ steps
+        tpass = (ts_dt === nothing || step == 0) ? ts_dt :
                 ts_dt + Second(δ * step)
+        # generate candidate
         expected = generate(OCRA(), secret;
             suite=suite,
             counter=counter,
@@ -658,11 +810,16 @@ function verify(::OCRA, secret::AbstractString, code::AbstractString;
             timestamp=tpass,
             digits=digits,
             algorithm=algorithm)
-        if expected == code
+        # constant-time comparison
+        if _consttime_eq(expected, code)
             return true
         end
     end
     return false
+end
+
+function verify(::OCRA, secret::AbstractString, code::AbstractString; kwargs...)
+    verify(OCRA(), base32decode(secret), code; kwargs...)
 end
 
 """
@@ -680,8 +837,8 @@ julia> using OneTimePasswords
 julia> secret = "M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF"; # generate_secret()
 
 julia> uri(HOTP(), secret, "bob@example.com", "MyApp"; counter=5)
-"otpauth://hotp/MyApp%3Abob%40example.com?secret=M7AB5U4DUCNI4GTUMBMB4QB\
-3LL6RIGOF&issuer=MyApp&digits=6&counter=5&algorithm=SHA1"
+"otpauth://hotp/MyApp%3Abob%40example.com?secret=M7AB5U4DUCNI4GTUMBMB4QB3LL6RI\
+GOF&issuer=MyApp&digits=6&counter=5&algorithm=SHA1"
 ```
 
 See also [`qrcode`](@ref).
@@ -693,7 +850,7 @@ function uri(::HOTP, secret::AbstractString,
     algorithm::Symbol=:SHA1)
     label = isempty(issuer) ? account : "$(issuer):$(account)"
     params = [
-        "secret=$secret",
+        "secret=$(escapeuri(secret))",
         "issuer=$(escapeuri(issuer))",
         "digits=$(digits)",
         "counter=$(counter)",
@@ -730,7 +887,7 @@ function uri(::TOTP, secret::AbstractString,
     label = isempty(issuer) ? account : "$(issuer):$(account)"
     period_int = period isa Period ? Second(period).value : period
     params = [
-        "secret=$secret",
+        "secret=$(escapeuri(secret))",
         "issuer=$(escapeuri(issuer))",
         "digits=$(digits)",
         "period=$(period_int)"
@@ -792,12 +949,12 @@ function uri(::OCRA,
     esc_label = escapeuri(label)
 
     # mandatory params
-    params = String[]
-    push!(params, "secret=$(escapeuri(secret))")
-    push!(params, "issuer=$(escapeuri(issuer))")
-    push!(params, "suite=$(escapeuri(suite))")
-    push!(params, "digits=$(digits)")
-    push!(params, "algorithm=$(uppercase(String(algorithm)))")
+    params = [
+        "secret=$(escapeuri(secret))",
+        "issuer=$(escapeuri(issuer))",
+        "suite=$(escapeuri(suite))",
+        "digits=$(digits)",
+        "algorithm=$(uppercase(String(algorithm)))"]
 
     # optional params
     if counter !== nothing
@@ -949,6 +1106,43 @@ function qrcode(uri::AbstractString;
     mat = QRCoders.qrcode(uri; width=border)
     QRCoders.exportbitmat(mat, path; pixels=size)
     return path
+end
+
+function _check_digits(d::Int)
+    if d < 6 || d > 10
+        error("Invalid digits=$d: RFC4226 requires between 6 and 10 digits")
+    #if d < 4 || d > 10
+    #    error("Invalid digits=$d: must be between 4 and 10")
+    end
+    return d
+end
+
+using Base: codeunit
+
+function _consttime_eq(a::AbstractString, b::AbstractString)
+    la, lb = sizeof(a), sizeof(b)
+    # Early exit if lengths differ
+    if la != lb
+        return false
+    end
+    acc = UInt8(0)
+    # XOR each pair of bytes and OR into acc
+    for i in 1:la
+        acc |= UInt8(codeunit(a, i) ⊻ codeunit(b, i))
+    end
+    return acc == 0
+end
+
+function _check_secret_length(algorithm::Symbol, key::Vector{UInt8})
+    minlen = algorithm === :SHA1 ? 20 :
+             algorithm === :SHA256 ? 32 :
+             algorithm === :SHA512 ? 64 :
+             error("Unknown algorithm: $algorithm")
+    if length(key) < minlen
+        error("Secret too short for 
+        $algorithm (need ≥$minlen bytes, got $(length(key)))")
+    end
+    return key
 end
 
 end

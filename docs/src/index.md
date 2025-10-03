@@ -6,6 +6,37 @@ CurrentModule = OneTimePasswords
 
 Documentation for [OneTimePasswords](https://github.com/andreeco/OneTimePasswords.jl).
 
+A minimal, fast Julia module for generating and verifying
+- counter-based OTP (HOTP, RFC 4226),
+- time-based OTP (TOTP, RFC 6238),
+- challenge-response OTP (OCRA, RFC 6287).
+
+Implements RFCs 4226, 6238, and 6287. 
+**Compliance not guaranteed. Not audited.**
+
+Also provides provisioning URIs and SVG/PNG QR-codes for authenticator apps.
+
+## Security Notice:
+This library is a _stateless_ OTP codec.  
+It does **not** enforce rate limiting, account lockouts, throttling, replay prevention, or secure memory handling.
+
+It is the responsibility of the application or server to:
+
+- Enforce retry limits per user/session
+- Lock accounts (temporarily or permanently) after repeated failures
+- Insert artificial delays or exponential backoff between attempts
+- Prevent reuse of OTPs (replay) in the same time window/session
+- Store secrets securely in memory and at rest
+- Always use TLS or other secure channels for OTP transport
+...
+
+Without these operational measures, your application will be vulnerable to brute-force attacks and OTP replay.
+
+Secrets are returned as Base32-encoded `String`s, which are immutable and 
+cannot be zeroized from memory; for high-assurance systems, use 
+`Vector{UInt8}` for secrets and explicitly overwrite them (with `fill!`) 
+after use.
+
 ## Installation
 
 ```julia

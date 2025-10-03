@@ -63,13 +63,43 @@ using Dates, HTTP, CodecBase, OneTimePasswords
     end
   end
 
+  @testset "HOTP verification security" begin
+    secret = OneTimePasswords.base32encode(Vector{UInt8}(
+      "12345678901234567890"))
+    # code from RFC 4226 vector
+    code0 = OneTimePasswords.generate(OneTimePasswords.HOTP(), secret, 0;
+      digits=6)
+    # Ensure equality works (not object identity ===)
+    @test OneTimePasswords.verify(OneTimePasswords.HOTP(), secret, 0,
+      string(code0))
+    # Ensure freshly constructed string (different object but same value) still validates
+    code_copy = string(code0)  # new object
+    @test OneTimePasswords.verify(OneTimePasswords.HOTP(), secret, 0,
+      code_copy)
+  end
+
+  @testset "Constant-time comparison helper" begin
+    # import the helper from the module
+    ct = OneTimePasswords._consttime_eq
+
+    # equal strings → true
+    @test ct("123456", "123456")
+    # same length but one byte differs → false
+    @test !ct("abcdef", "abcdez")
+    # different lengths → false
+    @test !ct("short", "shorter")
+    @test !ct("", "nonempty")
+    @test !ct("nonempty", "")
+  end
+
   @testset "RFC 6238 TOTP test vectors (SHA1, SHA256, SHA512)" begin
     ascii_secrets = Dict(
       :SHA1 => "12345678901234567890",
       :SHA256 => "12345678901234567890123456789012",
       :SHA512 => "1234567890123456789012345678901234567890123456789012345678901234"
     )
-    secrets = Dict(algo => OneTimePasswords.base32encode(Vector{UInt8}(ascii_secrets[algo]))
+    secrets = Dict(algo => OneTimePasswords.base32encode(Vector{UInt8}(
+      ascii_secrets[algo]))
                    for algo in keys(ascii_secrets))
 
     rfc = [
@@ -96,16 +126,17 @@ using Dates, HTTP, CodecBase, OneTimePasswords
     end
   end
 
-  @testset "TOTP with custom period & digits" begin
+@testset "TOTP with custom period & digits" begin
     sec = OneTimePasswords.generate_secret(32)
-    c4 = OneTimePasswords.generate(OneTimePasswords.TOTP(), sec; digits=4, period=15)
-    @test length(c4) == 4
-    @test all(isdigit, c4)
 
-    c7 = OneTimePasswords.generate(OneTimePasswords.TOTP(), sec; digits=7, period=60)
+    c6 = OneTimePasswords.generate(TOTP(), sec; digits=6, period=15)
+    @test length(c6) == 6
+    @test all(isdigit, c6)
+
+    c7 = OneTimePasswords.generate(TOTP(), sec; digits=7, period=60)
     @test length(c7) == 7
     @test all(isdigit, c7)
-  end
+end
 
   @testset "TOTP verification - drift and invalid" begin
     sec = OneTimePasswords.generate_secret()
@@ -115,10 +146,13 @@ using Dates, HTTP, CodecBase, OneTimePasswords
     # exact
     @test OneTimePasswords.verify(OneTimePasswords.TOTP(), sec, code; time=now)
     # ±1 period
-    @test OneTimePasswords.verify(OneTimePasswords.TOTP(), sec, code; time=now + Second(30))
-    @test OneTimePasswords.verify(OneTimePasswords.TOTP(), sec, code; time=now - Second(30))
+    @test OneTimePasswords.verify(OneTimePasswords.TOTP(), sec, code;
+      time=now + Second(30))
+    @test OneTimePasswords.verify(OneTimePasswords.TOTP(), sec, code;
+      time=now - Second(30))
     # outside default drift
-    @test !OneTimePasswords.verify(OneTimePasswords.TOTP(), sec, code; time=now + Second(60))
+    @test !OneTimePasswords.verify(OneTimePasswords.TOTP(), sec, code;
+      time=now + Second(60))
     # allow drift=1 minute
     @test OneTimePasswords.verify(OneTimePasswords.TOTP(), sec, code;
       time=now + Second(60),
@@ -143,6 +177,17 @@ using Dates, HTTP, CodecBase, OneTimePasswords
       "313233343536373839303132333435363738393031323334353637383930" *
       "313233343536373839303132333435363738393031323334353637383930" *
       "31323334")
+
+    @testset "OCRA padding correctness" begin
+      # From RFC 6287 Appendix C.1
+      secret20 = OneTimePasswords.base32encode(Vector{UInt8}("12345678901234567890"))
+      suite = "OCRA-1:HOTP-SHA1-6:QN08"
+      # numeric challenge "00000000" should give 237653
+      code = OneTimePasswords.generate(OneTimePasswords.OCRA(),
+        secret20; suite=suite, challenge="00000000")
+      @test code == "237653"
+      # If padding was wrong (rpad), this value would differ.
+    end
 
     @testset "C.1 HOTP-SHA1-6:QN08 (20-byte key)" begin
       suite = "OCRA-1:HOTP-SHA1-6:QN08"
@@ -295,7 +340,7 @@ using Dates, HTTP, CodecBase, OneTimePasswords
 
   @testset "OCRA time-based window (allowed_drift)" begin
     suite = "OCRA-1:HOTP-SHA512-8:QA10-T1M"
-    secret = OneTimePasswords.generate_secret()
+    secret = OneTimePasswords.generate_secret(64)
     challenge = "SIG1230000"
     dt = DateTime(2022, 1, 1, 15, 41, 0)
     dt_m1 = dt - Minute(1)
@@ -336,15 +381,28 @@ using Dates, HTTP, CodecBase, OneTimePasswords
     hotp_uri = OneTimePasswords.uri(OneTimePasswords.HOTP(), b32, "u", "S";
       digits=6, counter=5, algorithm=:SHA1)
     @test startswith(hotp_uri, "otpauth://hotp/")
-    @test occursin("secret=$b32", hotp_uri)
+    @test occursin("secret=$(HTTP.URIs.escapeuri(b32))", hotp_uri)
     @test occursin("counter=5", hotp_uri)
     @test occursin("algorithm=SHA1", hotp_uri)
 
     totp_uri = OneTimePasswords.uri(OneTimePasswords.TOTP(), b32, "u", "S";
       digits=6, period=30)
     @test startswith(totp_uri, "otpauth://totp/")
-    @test occursin("secret=$b32", totp_uri)
+    @test occursin("secret=$(HTTP.URIs.escapeuri(b32))", totp_uri)
     @test occursin("period=30", totp_uri)
+  end
+
+  @testset "URI escaping security" begin
+    # Secret with '=' padding
+    rawbytes = Vector{UInt8}("foo")
+    sec = OneTimePasswords.base32encode(rawbytes)  # includes '='
+    u_h = OneTimePasswords.uri(OneTimePasswords.HOTP(), sec, "acc", "iss";
+      counter=1)
+    u_t = OneTimePasswords.uri(OneTimePasswords.TOTP(), sec, "acc", "iss";
+      period=30)
+    # Secret should be percent-encoded in query to avoid malformed URI
+    @test occursin("secret=$(HTTP.URIs.escapeuri(sec))", u_h)
+    @test occursin("secret=$(HTTP.URIs.escapeuri(sec))", u_t)
   end
 
   @testset "OCRA provisioning URI formatting" begin
@@ -371,6 +429,21 @@ using Dates, HTTP, CodecBase, OneTimePasswords
     @test occursin("timestamp=123456", u)
   end
 
+  @testset "OCRA Q-field length validation" begin
+    # Q length > 64 (should be rejected)
+    @test_throws Exception OneTimePasswords.generate(
+      OneTimePasswords.OCRA(),
+      "MFRGGZDFMZTWQ2LK",
+      suite="OCRA-1:HOTP-SHA256-8:QA100"
+    )
+
+    # Q length < 4 (should be rejected)
+    @test_throws Exception OneTimePasswords.generate(
+      OneTimePasswords.OCRA(),
+      "MFRGGZDFMZTWQ2LK",
+      suite="OCRA-1:HOTP-SHA256-8:QA02")
+  end
+
   @testset "Unicode / escaping in URIs" begin
     sec = OneTimePasswords.generate_secret(20)
     acc = "Björk O’Conor"
@@ -383,8 +456,9 @@ using Dates, HTTP, CodecBase, OneTimePasswords
   @testset "Round-trip secret → URI" begin
     s = OneTimePasswords.generate_secret(32)
     code = OneTimePasswords.generate(OneTimePasswords.TOTP(), s)
-    u = OneTimePasswords.uri(OneTimePasswords.TOTP(), s, "bob", "ex"; digits=6, period=30)
-    @test occursin(s, u)
+    u = OneTimePasswords.uri(OneTimePasswords.TOTP(), s, "bob", "ex";
+      digits=6, period=30)
+    @test occursin(HTTP.URIs.escapeuri(s), u)
   end
 
   @testset "URI smoke + HOTP/TOTP/OCRA round-trip" begin
@@ -399,7 +473,7 @@ using Dates, HTTP, CodecBase, OneTimePasswords
       return kind, lbl, mp
     end
     # HOTP smoke
-    secret, acct, iss = generate_secret(), "bob@site.com", "MyApp"
+    secret, acct, iss = generate_secret(64), "bob@site.com", "MyApp"
     uri_h = uri(HOTP(), secret, acct, iss; digits=6, counter=42, algorithm=:SHA256)
     @test parse_uri(uri_h)[1] == "hotp"
     code_h = generate(HOTP(), secret, 42; digits=6, algorithm=:SHA256)
@@ -436,11 +510,14 @@ using Dates, HTTP, CodecBase, OneTimePasswords
 
   @testset "QR-code helpers (SVG & PNG)" begin
     b32 = OneTimePasswords.base32encode(Vector{UInt8}("1234"))
-    huri = OneTimePasswords.uri(OneTimePasswords.HOTP(), b32, "u", "S"; counter=1)
-    turi = OneTimePasswords.uri(OneTimePasswords.TOTP(), b32, "u", "S"; period=Second(30))
+    huri = OneTimePasswords.uri(OneTimePasswords.HOTP(), b32, "u", "S";
+      counter=1)
+    turi = OneTimePasswords.uri(OneTimePasswords.TOTP(), b32, "u", "S";
+      period=Second(30))
 
     # SVG
-    @test startswith(OneTimePasswords.qrcode(huri; format=:svg, size=80, border=1), "<svg")
+    @test startswith(OneTimePasswords.qrcode(huri; format=:svg, size=80,
+        border=1), "<svg")
     @test startswith(OneTimePasswords.qrcode(turi; format=:svg), "<svg")
 
     # PNG
@@ -452,21 +529,55 @@ using Dates, HTTP, CodecBase, OneTimePasswords
     @test bytes[1:8] == UInt8[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
     rm(tmp; force=true)
 
-    @test_throws ErrorException OneTimePasswords.qrcode(huri; format="bmp", path="foo.bmp")
+    @test_throws ErrorException OneTimePasswords.qrcode(huri; format="bmp",
+      path="foo.bmp")
     @test_throws ErrorException OneTimePasswords.qrcode(huri; format="jpg")
   end
 
   @testset "Edge cases & error handling" begin
     # invalid Base32
     @test_throws Exception OneTimePasswords.base32decode("!")
-    # minimum digits = 1
+    # too few digits should throw (RFC requires ≥4)
     s = OneTimePasswords.generate_secret()
-    c = OneTimePasswords.generate(OneTimePasswords.TOTP(), s; digits=1)
-    @test length(c) == 1
+    @test_throws Exception OneTimePasswords.generate(OneTimePasswords.TOTP(),
+      s; digits=1)
     # empty secret
-    @test !OneTimePasswords.verify(OneTimePasswords.TOTP(), "", c)
+    @test_throws Exception OneTimePasswords.verify(OneTimePasswords.TOTP(),
+      "", "123456")
     # invalid padding
     @test_throws Exception OneTimePasswords.base32decode("A=====")
+  end
+
+  @testset "Digits validation security" begin
+    sec = OneTimePasswords.generate_secret()
+    # digits <=0 should throw
+    @test_throws Exception OneTimePasswords.generate(OneTimePasswords.TOTP(),
+      sec; digits=0)
+    # too large digits should throw
+    @test_throws Exception OneTimePasswords.generate(OneTimePasswords.TOTP(),
+      sec; digits=15)
+  end
+
+  @testset "Secret length validation security" begin
+    short20 = OneTimePasswords.generate_secret(20)
+    # SHA1 works with 20
+    @test OneTimePasswords.generate(OneTimePasswords.TOTP(), short20;
+      algorithm=:SHA1) isa String
+    # Too short secrets for stronger algorithms must throw
+    @test_throws Exception OneTimePasswords.generate(OneTimePasswords.TOTP(),
+      short20; algorithm=:SHA256)
+    @test_throws Exception OneTimePasswords.generate(OneTimePasswords.TOTP(),
+      short20; algorithm=:SHA512)
+
+    short32 = OneTimePasswords.generate_secret(32)
+    @test OneTimePasswords.generate(OneTimePasswords.TOTP(), short32;
+      algorithm=:SHA256) isa String
+    @test_throws Exception OneTimePasswords.generate(OneTimePasswords.TOTP(),
+      short32; algorithm=:SHA512)
+
+    sec64 = OneTimePasswords.generate_secret(64)
+    @test OneTimePasswords.generate(OneTimePasswords.TOTP(), sec64;
+      algorithm=:SHA512) isa String
   end
 
 end
