@@ -37,6 +37,12 @@ cannot be zeroized from memory; for high-assurance systems, use
 `Vector{UInt8}` for secrets and explicitly overwrite them (with `fill!`) 
 after use.
 
+## Timing and Side-Channel Security
+
+- OTP code comparisons are performed in constant time, mitigating the most common remote timing side-channel attacks.
+- This package does **not** guarantee constant-time execution for secret decoding, key handling, or cryptographic operations; it is not designed for hardware tokens, HSMs, or “side-channel hardened” use cases.
+- For most typical server deployments, this is sufficient. For high-assurance applications (e.g., multi-tenant or hostile environments, or where hardware side-channels are a concern), use a hardened cryptography library or a hardware security module (HSM).
+
 ## Installation
 
 ```julia
