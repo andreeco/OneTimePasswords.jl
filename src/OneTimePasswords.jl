@@ -167,7 +167,7 @@ module OneTimePasswords
 using Dates, SHA, Random, CodecBase, QRCoders
 using HTTP.URIs: escapeuri
 
-export generate_secret, AbstractOTP, HOTP, TOTP, OCRA
+export generate_secret_raw, generate_secret, AbstractOTP, HOTP, TOTP, OCRA
 export generate, verify, uri, qrcode
 
 """
@@ -213,6 +213,30 @@ function _hmac(algorithm::Symbol, key::Vector{UInt8}, msg::Vector{UInt8})
 end
 
 """
+    generate_secret_raw(n::Integer=20) -> Vector{UInt8}
+
+Generate `n` cryptographically secure random bytes (OS RNG).
+Throws ArgumentError for non-positive or too-large `n`.
+
+# Examples
+```jldoctest
+julia> using OneTimePasswords, Random
+
+julia> secret_raw = generate_secret_raw();
+
+julia> rand!(RandomDevice(), secret_raw);
+```
+
+See also [`generate_secret`](@ref).
+"""
+function generate_secret_raw(n::Integer=20)
+    n <= 0 && throw(ArgumentError("secret length must be positive (got $n)"))
+    n > typemax(Int) && throw(ArgumentError("secret length too large"))
+    rng = RandomDevice()
+    return rand(rng, UInt8, Int(n))
+end
+
+"""
     generate_secret([length::Int=20])::String
 
 Generate a cryptographically-strong random secret (byte length `length`)
@@ -224,13 +248,12 @@ julia> using OneTimePasswords
 
 julia> secret = generate_secret();
 ```
-
-See also [`base32encode`](@ref), [`base32decode`](@ref).
+See also [`base32encode`](@ref), [`base32decode`](@ref) and  and 
+[`generate_secret_raw`](@ref).
 """
-function generate_secret(length::Int=20)
-    rd = Random.RandomDevice()
-    bytes = rand(rd, UInt8, length)
-    base32encode(bytes)
+function generate_secret(n::Integer=20)
+    raw = generate_secret_raw(n)
+    return base32encode(raw)
 end
 
 """
@@ -280,18 +303,24 @@ julia> using OneTimePasswords
 
 julia> # Base32-encoded String secret
 
-julia> secret = "M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF";
+julia> secret = "M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF"; #  generate_secret()
 
 julia> generate(HOTP(), secret, 0)
 "429658"
+```
 
-julia> # secret as `Vector{UInt8}
+```jldoctest
+julia> using OneTimePasswords, Random
 
-julia> raw_secret = OneTimePasswords.base32decode(
-                        "M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF");
+julia> # secret as `Vector{UInt8}; generate_secret_raw()
 
-julia> generate(HOTP(), raw_secret, 0)
+julia> secret_raw = UInt8[0x67, 0xc0, 0x1e, 0xd3, 0x83, 0xa0, 0x9a, 0x8e, 
+       0x1a, 0x74, 0x60, 0x58, 0x1e, 0x40, 0x3b, 0x5a, 0xfd, 0x14, 0x19, 0xc5];
+
+julia> generate(HOTP(), secret_raw, 0)
 "429658"
+
+julia> rand!(RandomDevice(), secret_raw);
 ```
 
 See also [`verify(::HOTP)`](@ref).
@@ -347,14 +376,26 @@ julia> dt = DateTime(2020,1,1,0,0,30);
 julia> generate(TOTP(), secret; time=dt, digits=7, period=Second(30), 
            algorithm=:SHA256)
 "6413619"
+```
 
-julia> # secret as `Vector{UInt8}
+```jldoctest
+julia> using OneTimePasswords, Dates, Random
 
-julia> raw_secret = OneTimePasswords.base32decode(secret);
+julia> # secret as `Vector{UInt8}; generate_secret_raw(32)
 
-julia> generate(TOTP(), raw_secret; time=dt, digits=7, period=Second(30), 
+julia> secret_raw = UInt8[0x15, 0xfc, 0xd9, 0xdb, 0xdf, 0x5f, 0xee, 0x8d, 0xc6, 
+       0xff, 0x11, 0x68, 0xda, 0xf1, 0x1a, 0xcc, 0xae, 0x3a, 0xc8, 0xcf, 0x59, 
+       0xb8, 0xa1, 0xe7, 0xbf, 0x42, 0x57, 0x36, 0x72, 0x4e, 0xa3, 0xda];
+
+julia> generate(TOTP(), secret_raw; digits=8);
+
+julia> dt = DateTime(2020,1,1,0,0,30);
+
+julia> generate(TOTP(), secret_raw; time=dt, digits=7, period=Second(30), 
            algorithm=:SHA256)
 "6413619"
+
+julia> rand!(RandomDevice(), secret_raw);
 ```
 
 See also [`verify(::TOTP)`](@ref).
@@ -521,14 +562,25 @@ julia> secret = "M7AB5U4DUCNI4GTUMBMB4QB3LL6RIGOF"; # generate_secret()
 julia> code = generate(OCRA(), secret; suite="OCRA-1:HOTP-SHA1-6:QN08",
             challenge="12345678")
 "262022"
+```
 
-julia> # secret as `Vector{UInt8}
+```jldoctest
+julia> using OneTimePasswords, Dates, Random
 
-julia> raw_secret = OneTimePasswords.base32decode(secret);
+julia> # secret as `Vector{UInt8}; generate_secret_raw()
 
-julia> code = generate(OCRA(), raw_secret; suite="OCRA-1:HOTP-SHA1-6:QN08",
+julia> secret_raw = UInt8[0x67, 0xc0, 0x1e, 0xd3, 0x83, 0xa0, 0x9a, 0x8e, 
+       0x1a, 0x74, 0x60, 0x58, 0x1e, 0x40, 0x3b, 0x5a, 0xfd, 0x14, 0x19, 0xc5];
+
+julia> code = generate(OCRA(), secret_raw; suite="OCRA-1:HOTP-SHA1-6:QN08",
             challenge="12345678")
 "262022"
+
+julia> rand!(RandomDevice(), secret_raw);
+```
+
+```jldoctest
+julia> using OneTimePasswords, Dates
 
 julia> secret = "T6AZ35HKKGWJEUACAUG5MK7T3CBZ5M76Q2GHLMHYOXQEHXKKTATGVH73\
                      QBRRW4MBP4P6QKCVMIMMIIBYEY534KZ\
@@ -604,14 +656,19 @@ julia> code = generate(HOTP(), secret, 123; digits=6);
 julia> verify(HOTP(), secret, 123, code)
 true
 
-julia> # secret as `Vector{UInt8}
+```jldoctest
+julia> using OneTimePasswords, Random
 
-julia> raw = OneTimePasswords.base32decode(secret);
+julia> # secret as `Vector{UInt8}; generate_secret_raw()
 
-julia> code2 = generate(HOTP(), raw, 123);
+julia> secret_raw = generate_secret_raw();
 
-julia> verify(HOTP(), raw, 123, code2)
+julia> code2 = generate(HOTP(), secret_raw, 123);
+
+julia> verify(HOTP(), secret_raw, 123, code2)
 true
+
+julia> rand!(RandomDevice(), secret_raw);
 ```
 
 See also [`generate(::HOTP)`](@ref).
@@ -669,13 +726,24 @@ true
 julia> verify(TOTP(), secret, code; time=dt+Minute(1), digits=8,
                            allowed_drift=Second(30))
 false
+```
 
-julia> # secret as `Vector{UInt8}
+```jldoctest
+julia> using OneTimePasswords, Dates, Random
 
-julia> raw_secret = OneTimePasswords.base32decode(secret);
+julia> # secret as `Vector{UInt8}; generate_secret_raw()
 
-julia> verify(TOTP(), raw_secret, code; time=dt, digits=8)
+julia> dt = DateTime(2022,1,1,0,0,30);
+
+julia> secret_raw = UInt8[0x67, 0xc0, 0x1e, 0xd3, 0x83, 0xa0, 0x9a, 0x8e, 
+       0x1a, 0x74, 0x60, 0x58, 0x1e, 0x40, 0x3b, 0x5a, 0xfd, 0x14, 0x19, 0xc5];
+
+julia> code = generate(TOTP(), secret_raw; time=dt, digits=8);
+
+julia> verify(TOTP(), secret_raw, code; time=dt, digits=8)
 true
+
+julia> rand!(RandomDevice(), secret_raw);
 ```
 See also [`generate(::TOTP)`](@ref).
 """
@@ -733,13 +801,21 @@ julia> code = generate(OCRA(), secret; challenge="12345678");
 
 julia> verify(OCRA(), secret, code; challenge="12345678")
 true
+```
 
-julia> # secret as `Vector{UInt8}
+```jldoctest
+julia> using OneTimePasswords, Dates, Random
 
-julia> raw_secret = OneTimePasswords.base32decode(secret);
+julia> # secret as `Vector{UInt8}; generate_secret_raw()
 
-julia> verify(OCRA(), raw_secret, code; challenge="12345678")
+julia> secret_raw = generate_secret_raw();
+
+julia> code = generate(OCRA(), secret_raw; challenge="12345678");
+
+julia> verify(OCRA(), secret_raw, code; challenge="12345678")
 true
+
+julia> rand!(RandomDevice(), secret_raw);
 ```
 
 ```jldoctest
