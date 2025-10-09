@@ -272,7 +272,7 @@ darkcolor="#000", lightcolor="#fff")`
 ## Contributions
 
 Questions, issues, and PRs welcome!  
-See [WebAuthn.jl on GitHub](https://github.com/andreeco/OneTimePasswords.jl/issues).
+See [OneTimePasswords.jl on GitHub](https://github.com/andreeco/OneTimePasswords.jl/issues).
 
 
 ## License

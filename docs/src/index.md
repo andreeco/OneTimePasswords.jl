@@ -241,7 +241,7 @@ julia> # qrcode(urilink; format=:ascii, border=1) # Print in the REPL
 ## Contributions
 
 Questions, issues, and PRs welcome!  
-See [WebAuthn.jl on GitHub](https://github.com/andreeco/OneTimePasswords.jl/issues).
+See [OneTimePasswords.jl on GitHub](https://github.com/andreeco/OneTimePasswords.jl/issues).
 
 ---
 
