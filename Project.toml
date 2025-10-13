@@ -1,7 +1,7 @@
 name = "OneTimePasswords"
 uuid = "cbea7a94-ea03-4af3-b52f-24efa70d1a55"
 authors = ["André Herling <andreeco@herling.pro>"]
-version = "0.0.4"
+version = "0.0.5"
 
 [deps]
 CodecBase = "6c391c72-fb7b-5838-ba82-7cfb1bcfecbf"
