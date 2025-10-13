@@ -16,32 +16,28 @@ Implements RFCs 4226, 6238, and 6287.
 
 Also provides provisioning URIs and SVG/PNG QR-codes for authenticator apps.
 
-## Security Notice:
-This library is a _stateless_ OTP codec.  
-It does **not** enforce rate limiting, account lockouts, throttling, replay prevention, or secure memory handling.
+## Security Considerations
 
-It is the responsibility of the application or server to:
+!!! warning
+    This package implements only the algorithmic core of HOTP, TOTP, and OCRA.  
+    It is **stateless** — it does not include rate limiting, lockout, replay tracking, throttling, or secure memory handling.
 
-- Enforce retry limits per user/session
-- Lock accounts (temporarily or permanently) after repeated failures
-- Insert artificial delays or exponential backoff between attempts
-- Prevent reuse of OTPs (replay) in the same time window/session
-- Store secrets securely in memory and at rest
-- Always use TLS or other secure channels for OTP transport
-...
+    Applications or servers using this library must enforce their own:
+    - Retry limits and account lockouts  
+    - Artificial delays or backoff to slow brute-force attempts  
+    - Replay prevention within each time window  
+    - Secure storage of shared secrets  
+    - Transport of OTPs and secrets only over TLS or secure channels  
 
-Without these operational measures, your application will be vulnerable to brute-force attacks and OTP replay.
+    Secrets are emitted as Base32‑encoded immutable `String`s.  
+    They cannot be zeroized.  
+    For stricter security, store secrets as `Vector{UInt8}` and overwrite them with `fill!()`.
 
-Secrets are returned as Base32-encoded `String`s, which are immutable and 
-cannot be zeroized from memory; for high-assurance systems, use 
-`Vector{UInt8}` for secrets and explicitly overwrite them (with `fill!`) 
-after use.
+### Timing and Side‑Channel Notes
 
-## Timing and Side-Channel Security
-
-- OTP code comparisons are performed in constant time, mitigating the most common remote timing side-channel attacks.
-- This package does **not** guarantee constant-time execution for secret decoding, key handling, or cryptographic operations; it is not designed for hardware tokens, HSMs, or “side-channel hardened” use cases.
-- For most typical server deployments, this is sufficient. For high-assurance applications (e.g., multi-tenant or hostile environments, or where hardware side-channels are a concern), use a hardened cryptography library or a hardware security module (HSM).
+- Code comparisons are constant‑time.  
+- Base32 decoding, HMAC, and key handling are not constant‑time.  
+- This package is not hardened for hardware tokens, HSMs, or multi‑tenant hostile environments.
 
 ## Installation
 

@@ -10,29 +10,26 @@ Implements RFCs 4226, 6238, and 6287. Compliance not guaranteed. Not audited.
 Also provides provisioning URIs and QR-codes for authenticator apps.
 
 !!! warning
-    **Security notice:** This library implements only the algorithmic core of
-    HOTP, TOTP, and OCRA. It does **not** provide rate limiting,
-    account lockouts, throttling, replay prevention, or secure memory features.
-    Your application or service layer is responsible for these kind of 
-    protections.
+    **Security Considerations:**  
+    This module implements only the algorithmic core of HOTP, TOTP, and OCRA.  
+    It is stateless and does not include rate limiting, lockout, replay 
+    tracking, throttling, or secure memory handling.
 
-    OTP secrets are returned as Base32-encoded `String` values. In Julia,
-    `String` objects are immutable and not cleared from memory after use;
-    they may persist until garbage collection and can appear in memory dumps.
-    For high-assurance use, consider storing secrets as `Vector{UInt8}`
-    and explicitly overwriting them (with `fill!`) after use.
+    Applications using this module must enforce their own controls:
+    - Retry and lockout policies  
+    - Delays or backoff to slow brute-force  
+    - Replay prevention within sessions or windows  
+    - Secure storage of shared secrets  
+    - Secure transport (e.g., TLS)
 
-# Timing and Side-Channel Security
+    Secrets are Base32‑encoded immutable `String`s. They cannot be zeroized.  
+    Use `Vector{UInt8}` and `fill!()` if explicit key erasure is required.
 
-- OTP code comparisons are performed in constant time, mitigating the most
-  common remote timing side-channel attacks.
-- This package does **not** guarantee constant-time execution for secret decoding,
-  key handling, or cryptographic operations. It is not designed for
-  hardware tokens, HSMs, or "side-channel hardened" use cases.
-- For most typical server deployments, this is sufficient. For high-assurance
-  applications (e.g., multi-tenant or hostile environments, or where
-  hardware side-channels are a concern), use a hardened library or a
-  hardware security module (HSM).
+# Timing and Side‑Channel Notes
+- OTP code comparisons are constant‑time.  
+- Base32 decoding and HMAC operations are not guaranteed constant‑time.  
+- For multi‑tenant or hostile environments, use a hardened crypto library or 
+  HSM.
 
 # Examples
 ```jldoctest
